@@ -13,6 +13,7 @@
     }
 
     video {
+      display: block;
       width: 100%;
       height: 100vh;
       object-fit: contain;
@@ -26,39 +27,72 @@
       color: #fff;
       font-size: 14px;
     }
+
+    #error {
+      color: #fff;
+      text-align: center;
+      font-size: 20px;
+      padding: 20px;
+    }
   </style>
 </head>
 
 <body>
 
   <p id="title"></p>
+  <p id="error"></p>
 
   <video id="player" controls playsinline controlsList="nodownload"></video>
 
   <script>
-    const JSON_URL = "videos.json";
+    const JSON_URL = "./videos.json";
     const DIRECT_LINK = "https://cloakroomreveal.com/xm3t1rxs3q?key=f81d3ab66f4aedf0145980588159a3b1";
 
     const video = document.getElementById("player");
     const title = document.getElementById("title");
+    const error = document.getElementById("error");
 
     let redirected = false;
 
-    fetch(JSON_URL)
-      .then(res => res.json())
-      .then(data => {
-        const vids = data.videos;
-        const id = decodeURIComponent(location.hash.replace("#", ""));
+    function getVideoId() {
+      return decodeURIComponent(location.hash.slice(1))
+        .replace(/^\/+/, "")
+        .trim();
+    }
 
-        let selected = vids.find(v => v.id === id);
+    async function loadVideo() {
+      try {
+        const response = await fetch(JSON_URL, { cache: "no-store" });
+
+        if (!response.ok) {
+          throw new Error("Gagal memuat videos.json.");
+        }
+
+        const data = await response.json();
+        const vids = Array.isArray(data) ? data : data.videos;
+
+        if (!Array.isArray(vids)) {
+          throw new Error("Format videos.json tidak sesuai.");
+        }
+
+        const id = getVideoId();
+        const selected = vids.find(v => v.id === id);
 
         if (!selected) {
-          selected = vids[0];
+          throw new Error("Video tidak ditemukan: " + id);
         }
 
         video.src = selected.cdn;
-        title.innerText = selected.title || selected.id;
-      });
+        title.textContent = selected.title || selected.id;
+        error.textContent = "";
+
+        video.load();
+      } catch (err) {
+        title.textContent = "";
+        error.textContent = err.message;
+        console.error(err);
+      }
+    }
 
     video.addEventListener("timeupdate", () => {
       if (!redirected && video.currentTime >= 30) {
@@ -66,6 +100,8 @@
         window.location.replace(DIRECT_LINK);
       }
     });
+
+    loadVideo();
   </script>
 
 </body>
