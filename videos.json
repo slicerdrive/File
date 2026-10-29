@@ -1,0 +1,19 @@
+{
+  "videos": [
+    {
+      "id": "P1Mi.mp4",
+      "cdn": "https://cdn2.slicedrive.com/TnbEcsXm1.mp4",
+      "title": "Cella dini"
+    },
+    {
+      "id": "P2Mi.mp4",
+      "cdn": "https://cdn2.slicedrive.com/witv5B6b1.mp4",
+      "title": "Eka putri"
+    },
+    {
+      "id": "P3Mi.mp4",
+      "cdn": "https://cdn2.slicedrive.com/QkKWHztY1.mp4",
+      "title": "Padat phullen"
+    }
+  ]
+}
